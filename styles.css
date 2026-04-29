@@ -1,0 +1,143 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #050505;
+    background-image: radial-gradient(circle at center, #140524 0%, #000000 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    font-family: 'Orbitron', monospace;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 255, 204, 0.25), 
+                inset 0 0 40px rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(0, 255, 204, 0.4);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #0a0a12;
+}
+
+/* CRT Scanline Overlay */
+#game-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 10;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+#score-display {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 30px #00ffcc;
+    z-index: 15;
+    pointer-events: none;
+    letter-spacing: 2px;
+}
+
+#game-over {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 12, 0.85);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    backdrop-filter: blur(5px);
+}
+
+#game-over.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#game-over h1 {
+    font-size: 58px;
+    margin: 0;
+    color: #ff3366;
+    text-shadow: 0 0 15px #ff3366, 0 0 30px #ff3366, 0 0 45px #ff3366;
+    letter-spacing: 4px;
+}
+
+#game-over h2 {
+    font-size: 28px;
+    color: #fff;
+    margin: 20px 0 10px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+#leaderboard-section {
+    margin-bottom: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    padding: 15px 30px;
+    border-radius: 8px;
+    min-width: 300px;
+}
+
+#leaderboard-section h3 {
+    margin: 0 0 15px;
+    color: #00ffcc;
+    font-size: 18px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+    padding-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#leaderboard-list li {
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+    font-size: 16px;
+    padding: 5px 0;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+#leaderboard-list li span:last-child {
+    color: #ff3366;
+    font-weight: bold;
+}
+
+#game-over p {
+    font-size: 18px;
+    color: #00ffcc;
+    animation: blink 1.2s infinite;
+    cursor: pointer;
+    text-shadow: 0 0 10px #00ffcc;
+    letter-spacing: 1px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+canvas {
+    display: block;
+    cursor: crosshair; /* Changes cursor to a crosshair to fit the shooter vibe */
+}

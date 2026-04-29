@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Web Shooter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="score-display">SCORE: <span id="score-val">0</span></div>
+
+        <div id="game-over">
+            <h1>SYSTEM CRITICAL</h1>
+            <h2>FINAL SCORE: <span id="final-score">0</span></h2>
+            
+            <div id="leaderboard-section">
+                <h3>GLOBAL TOP SYSTEMS</h3>
+                <ul id="leaderboard-list">
+                    <li>LOADING DATA...</li>
+                </ul>
+            </div>
+
+            <p>> CLICK HERE TO REBOOT << /p>
+        </div>
+
+        <canvas id="gameCanvas" width="900" height="700"></canvas>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
