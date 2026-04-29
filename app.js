@@ -55,6 +55,34 @@ class Bullet {
     }
 }
 
+class EnemyBullet {
+    constructor(x, y, angle) {
+        this.x = x;
+        this.y = y;
+        this.speed = 400; // Enemy bullets are slower than player shots
+        this.dx = Math.cos(angle);
+        this.dy = Math.sin(angle);
+        this.radius = 2;
+        this.color = '#ff3366';
+    }
+
+    update(dt) {
+        this.x += this.dx * this.speed * dt;
+        this.y += this.dy * this.speed * dt;
+    }
+
+    draw(ctx) {
+        // Draw enemy projectile with red/pink glow
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+}
+
 class Enemy {
     constructor(x, y) {
         this.x = x;
@@ -68,6 +96,10 @@ class Enemy {
         this.rotSpeed = (Math.random() - 0.5) * 4;
         this.sides = Math.floor(Math.random() * 3) + 3; // 3 to 5 sides (triangles, squares, pentagons)
         this.spawnProgress = 0; // For warp-in animation
+        
+        // Firing parameters
+        this.fireTimer = Math.random() * 2; // Random delay before first shot
+        this.fireInterval = 1.5 + Math.random() * 0.5; // Fire every 1.5-2 seconds
     }
 
     update(dt, px, py) {
@@ -81,6 +113,15 @@ class Enemy {
         this.rotation += this.rotSpeed * dt;
         this.x += Math.cos(angle) * this.speed * dt;
         this.y += Math.sin(angle) * this.speed * dt;
+        
+        // Update firing logic
+        this.fireTimer += dt;
+        if (this.fireTimer >= this.fireInterval) {
+            this.fireTimer = 0;
+            return { shouldFire: true, angle: angle };
+        }
+        
+        return { shouldFire: false, angle: angle };
     }
 
     draw(ctx) {
@@ -177,6 +218,7 @@ const player = {
 };
 
 let bullets = [];
+let enemyBullets = [];
 let enemies = [];
 let particles = [];
 const keys = {};
@@ -272,6 +314,7 @@ function restartGame() {
     score = 0;
     scoreEl.innerText = score;
     bullets = [];
+    enemyBullets = [];
     enemies = [];
     particles = [];
     player.x = canvas.width / 2;
@@ -418,7 +461,12 @@ function update(dt, currentTime) {
     // Handle Enemies
     for (let i = enemies.length - 1; i >= 0; i--) {
         let e = enemies[i];
-        e.update(dt, player.x, player.y);
+        const fireData = e.update(dt, player.x, player.y);
+
+        // Enemy fires at player
+        if (fireData.shouldFire) {
+            enemyBullets.push(new EnemyBullet(e.x, e.y, fireData.angle));
+        }
 
         // Enemy vs Player collision
         const dist = Math.hypot(player.x - e.x, player.y - e.y);
@@ -427,6 +475,30 @@ function update(dt, currentTime) {
             shakeScreen(400, 25);
             createParticles(player.x, player.y, player.color, 60);
             createParticles(player.x, player.y, '#ffffff', 30);
+            setGameOver();
+            break;
+        }
+    }
+
+    // Handle Enemy Bullets
+    for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        let eb = enemyBullets[i];
+        eb.update(dt);
+        
+        // GC off-screen enemy bullets
+        if (eb.x < -100 || eb.x > canvas.width + 100 || eb.y < -100 || eb.y > canvas.height + 100) {
+            enemyBullets.splice(i, 1);
+            continue;
+        }
+
+        // Collision with player
+        const dist = Math.hypot(player.x - eb.x, player.y - eb.y);
+        if (dist < player.radius + eb.radius) {
+            // Hit! Game over
+            shakeScreen(400, 25);
+            createParticles(player.x, player.y, player.color, 60);
+            createParticles(player.x, player.y, '#ffffff', 30);
+            enemyBullets.splice(i, 1);
             setGameOver();
             break;
         }
@@ -472,6 +544,7 @@ function render() {
     // 4. Draw Particles & Plasma Projectiles underneath the main geo
     particles.forEach(p => p.draw(ctx));
     bullets.forEach(b => b.draw(ctx));
+    enemyBullets.forEach(eb => eb.draw(ctx));
 
     // Reset blending back to normal draw layers
     ctx.globalCompositeOperation = 'source-over';
